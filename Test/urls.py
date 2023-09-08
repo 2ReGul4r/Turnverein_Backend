@@ -20,5 +20,5 @@ from Test import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/get/stadt-liste', views.get_stadt_list)
+    path('api/stadt', views.stadt),
 ]

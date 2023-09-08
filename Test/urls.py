@@ -22,4 +22,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/city', views.city),
     path('api/member', views.member),
+    path('api/trainer', views.trainer),
+    path('api/sport', views.sport),
+    path('api/coaching', views.coaching),
 ]

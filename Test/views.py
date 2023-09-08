@@ -41,7 +41,7 @@ def city(request):
             except City.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
         
-    return Response({'error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+    return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
 def member(request):
@@ -93,7 +93,7 @@ def member(request):
             except Member.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
         
-    return Response({'error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+    return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
 def trainer(request):
@@ -145,4 +145,81 @@ def trainer(request):
             except Trainer.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
         
-    return Response({'error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+    return Response(status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET', 'POST', 'PUT', 'DELETE'])
+def sport(request):
+    if request.method == 'GET':
+        sport_list = Sport.objects.all()
+        id = request.query_params.get('id', None)
+        name = request.query_params.get('name', None)
+        if id:
+            sport_list = sport_list.filter(id=id)
+        if name:
+            sport_list = sport_list.filter(name__icontains=name.lower())
+        serializer = SportSerializer(sport_list, many=True)
+        return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+
+    elif request.method == 'POST':
+        serializer = SportSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'data': serializer.data}, status=status.HTTP_201_CREATED)
+        
+    elif request.method == 'PUT':
+        serializer = SportSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+        
+    elif request.method == 'DELETE':
+        id = request.query_params.get('id', None)
+        if id:
+            try:
+                sport = Sport.objects.get(id=id)
+                sport.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            except Sport.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+        
+    return Response(status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET', 'POST', 'PUT', 'DELETE'])
+def coaching(request):
+    if request.method == 'GET':
+        coaching_list = Coaching.objects.all()
+        id = request.query_params.get('id', None)
+        sport = request.query_params.get('sport', None)
+        trainer = request.query_params.get('trainer', None)
+        if id:
+            coaching_list = coaching_list.filter(id=id)
+        if sport:
+            coaching_list = coaching_list.filter(sport__icontains=sport.lower())
+        if trainer:
+            coaching_list = coaching_list.filter(trainer__icontains=trainer.lower())
+        serializer = CoachingSerializer(coaching_list, many=True)
+        return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+
+    elif request.method == 'POST':
+        serializer = CoachingSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'data': serializer.data}, status=status.HTTP_201_CREATED)
+        
+    elif request.method == 'PUT':
+        serializer = CoachingSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+        
+    elif request.method == 'DELETE':
+        id = request.query_params.get('id', None)
+        if id:
+            try:
+                coaching = Coaching.objects.get(id=id)
+                coaching.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            except Coaching.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+        
+    return Response(status=status.HTTP_400_BAD_REQUEST)

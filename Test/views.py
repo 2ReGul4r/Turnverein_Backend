@@ -7,69 +7,78 @@ from .serializers import *
 # from django.db.models.functions import Lower | queryset = queryset.annotate(lower_attribute=Lower('attribute'))
 
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
-def stadt(request):
+def city(request):
     if request.method == 'GET':
-        stadt_list = Stadt.objects.all()
-        name = request.query_params.get('name', None)
-        plz = request.query_params.get('plz', None)
-        if name:
-            stadt_list = stadt_list.filter(ort__icontains=name.lower())  
-        if plz:
-            stadt_list = stadt_list.filter(plz=plz)    
-        serializer = StadtSerializer(stadt_list, many=True)
+        city_list = City.objects.all()
+        city = request.query_params.get('city', None)
+        postcode = request.query_params.get('postcode', None)
+        if city:
+            city_list = city_list.filter(city__icontains=city.lower())  
+        if postcode:
+            city_list = city_list.filter(postcode=postcode)    
+        serializer = CitySerializer(city_list, many=True)
         return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
     elif request.method == 'POST':
-        serializer = StadtSerializer(data=request.data)
+        serializer = CitySerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({'data': serializer.data}, status=status.HTTP_201_CREATED)
         
     elif request.method == 'PUT':
-        serializer = StadtSerializer(data=request.data)
+        serializer = CitySerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
         
     elif request.method == 'DELETE':
-        stadt_plz = request.data.get('plz')
-        if stadt_plz:
+        postcode = request.data.get('postcode')
+        if postcode:
             try:
-                stadt = Stadt.objects.get(plz=stadt_plz)
-                stadt.delete()
+                city = City.objects.get(postcode=postcode)
+                city.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
-            except Stadt.DoesNotExist:
+            except City.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
         
-    return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
-def adresse(request):
+def member(request):
     if request.method == 'GET':
-        adresse_list = Adresse.objects.all()
+        member_list = Member.objects.all()
         id = request.query_params.get('id', None)
-        straße = request.query_params.get('straße', None)
-        hausnummer = request.query_params.get('hausnummer', None)
-        plz = request.query_params.get('plz', None)
+        first_name = request.query_params.get('first_name', None)
+        last_name = request.query_params.get('last_name', None)
+        birthday = request.query_params.get('birthday', None)
+        street = request.query_params.get('street', None)
+        house_number = request.query_params.get('house_number', None)
+        postcode = request.query_params.get('postcode', None)
         if id:
-            adresse_list = adresse_list.filter(id=id)   
-        if straße:
-            adresse_list = adresse_list.filter(straße__icontains=straße.lower())   
-        if hausnummer:
-            adresse_list = adresse_list.filter(hausnummer=hausnummer)   
-        if plz:
-            adresse_list = adresse_list.filter(plz=plz)   
-        serializer = AdresseSerializer(adresse_list, many=True)
+            member_list = member_list.filter(id=id)
+        if first_name:
+            member_list = member_list.filter(first_name__icontains=first_name.lower())
+        if last_name:
+            member_list = member_list.filter(last_name__icontains=last_name.lower())
+        if birthday:
+            member_list = member_list.filter(birthday=birthday)
+        if street:
+            member_list = member_list.filter(street__icontains=street.lower())
+        if house_number:
+            member_list = member_list.filter(house_number=house_number)
+        if postcode:
+            member_list = member_list.filter(postcode=postcode)
+        serializer = MemberSerializer(member_list, many=True)
         return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
     elif request.method == 'POST':
-        serializer = AdresseSerializer(data=request.data)
+        serializer = MemberSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({'data': serializer.data}, status=status.HTTP_201_CREATED)
         
     elif request.method == 'PUT':
-        serializer = AdresseSerializer(data=request.data)
+        serializer = MemberSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
@@ -78,10 +87,62 @@ def adresse(request):
         id = request.data.get('id')
         if id:
             try:
-                adresse = Adresse.objects.get(id=id)
-                adresse.delete()
+                member = Member.objects.get(id=id)
+                member.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
-            except Adresse.DoesNotExist:
+            except Member.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
         
-    return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET', 'POST', 'PUT', 'DELETE'])
+def trainer(request):
+    if request.method == 'GET':
+        trainer_list = Trainer.objects.all()
+        id = request.query_params.get('id', None)
+        first_name = request.query_params.get('first_name', None)
+        last_name = request.query_params.get('last_name', None)
+        birthday = request.query_params.get('birthday', None)
+        street = request.query_params.get('street', None)
+        house_number = request.query_params.get('house_number', None)
+        postcode = request.query_params.get('postcode', None)
+        if id:
+            trainer_list = trainer_list.filter(id=id)
+        if first_name:
+            trainer_list = trainer_list.filter(first_name__icontains=first_name.lower())
+        if last_name:
+            trainer_list = trainer_list.filter(last_name__icontains=last_name.lower())
+        if birthday:
+            trainer_list = trainer_list.filter(birthday=birthday)
+        if street:
+            trainer_list = trainer_list.filter(street__icontains=street.lower())
+        if house_number:
+            trainer_list = trainer_list.filter(house_number=house_number)
+        if postcode:
+            trainer_list = trainer_list.filter(postcode=postcode)
+        serializer = TrainerSerializer(trainer_list, many=True)
+        return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+
+    elif request.method == 'POST':
+        serializer = TrainerSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'data': serializer.data}, status=status.HTTP_201_CREATED)
+        
+    elif request.method == 'PUT':
+        serializer = TrainerSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+        
+    elif request.method == 'DELETE':
+        id = request.data.get('id')
+        if id:
+            try:
+                trainer = Trainer.objects.get(id=id)
+                trainer.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            except Trainer.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+        
+    return Response({'error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)

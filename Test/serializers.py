@@ -1,32 +1,27 @@
 from rest_framework import serializers
 from .models import *
 
-class StadtSerializer(serializers.ModelSerializer):
+class CitySerializer(serializers.ModelSerializer):
     class Meta: 
-        model = Stadt
-        fields = ['plz', 'ort']
+        model = City
+        fields = ['postcode', 'city']
         
-class AdresseSerializer(serializers.ModelSerializer):
+class MemberSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Adresse
-        fields = ['id', 'straße', 'hausnummer', 'plz']
-        
-class MitgliedSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Mitglied
-        fields = ['id', 'vorname', 'nachname', 'geburtsdatum', 'adresse']
+        model = Member
+        fields = ['id', 'first_name', 'last_name', 'birthday', 'street', 'house_number', 'postcode']
         
 class TrainerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Trainer
-        fields = ['id', 'vorname', 'nachname', 'geburtsdatum', 'adresse']
+        fields = ['id', 'first_name', 'last_name', 'birthday', 'street', 'house_number', 'postcode']
         
-class SportartSerializer(serializers.ModelSerializer):
+class SportSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Sportart
+        model = Sport
         fields = ['id', 'name', 'trainer']
         
-class TrainiertSerializer(serializers.ModelSerializer):
+class CoachingSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Trainiert
-        fields = ['id', 'sportart', 'trainer']
+        model = Coaching
+        fields = ['id', 'sport', 'trainer']

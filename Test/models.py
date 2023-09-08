@@ -1,48 +1,44 @@
 from django.db import models
     
-class Stadt(models.Model):
-    plz = models.CharField(max_length=5, primary_key=True)
-    ort = models.CharField(max_length=64)
+class City(models.Model):
+    postcode = models.IntegerField(primary_key=True)
+    city = models.CharField(max_length=64)
     
     def __str__(self):
-        return f'{self.ort} ({self.plz})'
+        return f'{self.city} ({self.postcode})'
     
-class Adresse(models.Model):
-    straße = models.CharField(max_length=64)
-    hausnummer = models.CharField(max_length=8)
-    plz = models.ForeignKey(Stadt, on_delete=models.RESTRICT)
-    
-    def __str__(self):
-        return f'{self.straße} {self.hausnummer} {self.plz}'
-    
-class Mitglied(models.Model):
-    vorname = models.CharField(max_length=64)
-    nachname = models.CharField(max_length=8)
-    geburtsdatum = models.DateField()
-    adresse = models.ForeignKey(Adresse, on_delete=models.CASCADE)
+class Member(models.Model):
+    first_name = models.CharField(max_length=64)
+    last_name = models.CharField(max_length=8)
+    birthday = models.DateField()
+    street = models.CharField(max_length=64)
+    house_number = models.CharField(max_length=8)
+    postcode = models.ForeignKey(City, on_delete=models.RESTRICT)
     
     def __str__(self):
-        return f'{self.vorname} {self.nachname}'
+        return f'{self.first_name} {self.last_name}'
     
 class Trainer(models.Model):
-    vorname = models.CharField(max_length=64)
-    nachname = models.CharField(max_length=8)
-    geburtsdatum = models.DateField()
-    adresse = models.ForeignKey(Adresse, on_delete=models.CASCADE)
+    first_name = models.CharField(max_length=64)
+    last_name = models.CharField(max_length=8)
+    birthday = models.DateField()
+    strstreetaße = models.CharField(max_length=64)
+    house_number = models.CharField(max_length=8)
+    postcode = models.ForeignKey(City, on_delete=models.RESTRICT)
     
     def __str__(self):
-        return f'{self.vorname} {self.nachname}'
+        return f'{self.first_name} {self.last_name}'
     
-class Sportart(models.Model):
+class Sport(models.Model):
     name = models.CharField(max_length=64)
     trainer = models.ForeignKey(Trainer, on_delete=models.CASCADE)
     
     def __str__(self):
         return f'{self.name}'
 
-class Trainiert(models.Model):
-    sportart = models.ForeignKey(Sportart, on_delete=models.CASCADE)
+class Coaching(models.Model):
+    sport = models.ForeignKey(Sport, on_delete=models.CASCADE)
     trainer = models.ForeignKey(Trainer, on_delete=models.CASCADE)
     
     def __str__(self):
-        return f'{self.trainer} -> {self.sportart}'
+        return f'{self.sport} with {self.trainer}'

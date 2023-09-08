@@ -21,4 +21,5 @@ from Test import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/stadt', views.stadt),
+    path('api/adresse', views.adresse),
 ]

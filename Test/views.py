@@ -1,12 +1,21 @@
+from django.contrib.auth import authenticate, login
 from rest_framework import status
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.authtoken.models import Token
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
 from .models import *
 from .serializers import *
 
-# from django.db.models.functions import Lower | queryset = queryset.annotate(lower_attribute=Lower('attribute'))
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives import hashes
 
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication]) 
 def city(request):
     if request.method == 'GET':
         city_list = City.objects.all()
@@ -44,6 +53,8 @@ def city(request):
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication]) 
 def member(request):
     if request.method == 'GET':
         member_list = Member.objects.all()
@@ -96,6 +107,8 @@ def member(request):
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication]) 
 def trainer(request):
     if request.method == 'GET':
         trainer_list = Trainer.objects.all()
@@ -106,6 +119,7 @@ def trainer(request):
         street = request.query_params.get('street', None)
         house_number = request.query_params.get('house_number', None)
         postcode = request.query_params.get('postcode', None)
+        username = request.query_params.get('username', None)
         if id:
             trainer_list = trainer_list.filter(id=id)
         if first_name:
@@ -120,6 +134,8 @@ def trainer(request):
             trainer_list = trainer_list.filter(house_number=house_number)
         if postcode:
             trainer_list = trainer_list.filter(postcode=postcode)
+        if username:
+            trainer_list = trainer_list.filter(username__icontains=username.lower())
         serializer = TrainerSerializer(trainer_list, many=True)
         return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
@@ -136,7 +152,10 @@ def trainer(request):
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
         
     elif request.method == 'DELETE':
+        if not request.user.is_staff:
+            return Response(status=status.HTTP_403_FORBIDDEN)
         id = request.data.get('id')
+        username = request.data.get('username')
         if id:
             try:
                 trainer = Trainer.objects.get(id=id)
@@ -148,6 +167,8 @@ def trainer(request):
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication]) 
 def sport(request):
     if request.method == 'GET':
         sport_list = Sport.objects.all()
@@ -185,6 +206,8 @@ def sport(request):
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication]) 
 def coaching(request):
     if request.method == 'GET':
         coaching_list = Coaching.objects.all()
@@ -223,3 +246,53 @@ def coaching(request):
                 return Response(status=status.HTTP_404_NOT_FOUND)
         
     return Response(status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, IsAdminUser])
+@authentication_classes([TokenAuthentication])
+def toggle_staff_status(request):
+    id = request.query_params.get('id', None)
+    if not id:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    try:
+        user = Trainer.objects.get(id=id)
+    except Trainer.DoesNotExist:
+        return Response({'error': 'Benutzer wurde nicht gefunden.'}, status=status.HTTP_404_NOT_FOUND)
+
+    if user.is_staff:
+        user.is_staff = False 
+        user.save()
+        return Response({'message': 'Administratorstatus des Benutzers wurde entfernt.'}, status=status.HTTP_200_OK)
+    else:
+        user.is_staff = True
+        user.save()
+        return Response({'message': 'Benutzer wurde zum Administrator ernannt.'}, status=status.HTTP_200_OK)
+    
+@api_view(['POST'])
+def user_login(request):
+    username = request.data.get('username')
+    encrypted_password = request.data.get('password')
+    
+    with open('private_key.pem', 'rb') as private_key_file:
+        private_pem = private_key_file.read()
+        private_key = serialization.load_pem_private_key(private_pem, password=None)
+        
+    decrypted_text = private_key.decrypt(
+        encrypted_password,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
+    )
+    
+    password = decrypted_text.decode('utf-8')
+
+    user = authenticate(request, username=username, password=password)
+
+    if user is not None:
+        token, created = Token.objects.get_or_create(user=user)
+        login(request, user)
+        return Response({'token': token.key}, status=status.HTTP_200_OK)
+    else:
+        return Response({'error': 'Ungültige Anmeldeinformationen.'}, status=status.HTTP_401_UNAUTHORIZED)

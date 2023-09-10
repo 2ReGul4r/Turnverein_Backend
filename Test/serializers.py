@@ -14,7 +14,8 @@ class MemberSerializer(serializers.ModelSerializer):
 class TrainerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Trainer
-        fields = ['id', 'first_name', 'last_name', 'birthday', 'street', 'house_number', 'postcode']
+        fields = ['id', 'first_name', 'last_name', 'birthday', 'street', 'house_number', 'postcode', 'username', 'password']
+        extra_kwargs = {'password': {'write_only': True}}
         
 class SportSerializer(serializers.ModelSerializer):
     class Meta:

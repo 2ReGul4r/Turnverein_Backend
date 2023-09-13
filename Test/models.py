@@ -29,17 +29,45 @@ class Trainer(AbstractUser):
     
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
-        
-    
+
 class Sport(models.Model):
     name = models.CharField(max_length=64)
     
     def __str__(self):
         return f'{self.name}'
+    
+class Coursedate(models.Model):
+    course_length = models.IntegerField()
+    days = models.IntegerField()
+    hour = models.IntegerField()
+    minute = models.IntegerField()
+    
+    def __str__(self):
+        formatter = {
+            'Saturday': 32,
+            'Friday': 16,
+            'Thursday': 8,
+            'Wednesday': 4,
+            'Tuesday': 2,
+            'Monday': 1
+        }
+        day_code = int(self.days)
+        day_list = []
+        for day, value in formatter.items():
+            if day_code >= value:
+                day_list.append(day)
+                day_code -= value
+        return f'{", ".join(day_list[::-1])} at {self.hour}:{str(self.minute).zfill(2)}'
 
-class Coaching(models.Model):
+class Course(models.Model):
     sport = models.ForeignKey(Sport, on_delete=models.CASCADE)
     trainer = models.ForeignKey(Trainer, on_delete=models.CASCADE)
+    date = models.ForeignKey(Coursedate, on_delete=models.CASCADE)
+    hall = models.CharField(max_length=64)
     
     def __str__(self):
         return f'{self.sport} with {self.trainer}'
+    
+class Participant(models.Model):
+    id_course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    id_member = models.ForeignKey(Member, on_delete=models.CASCADE)

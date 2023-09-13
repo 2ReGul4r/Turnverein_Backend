@@ -22,7 +22,17 @@ class SportSerializer(serializers.ModelSerializer):
         model = Sport
         fields = ['id', 'name']
         
-class CoachingSerializer(serializers.ModelSerializer):
+class CourseSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Coaching
-        fields = ['id', 'sport', 'trainer']
+        model = Course
+        fields = ['id', 'sport', 'trainer', 'date', 'hall']
+        
+class CoursedateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Coursedate
+        fields = ['id', 'course_length', 'days', 'hour', 'minute']
+        
+class ParticipantSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Participant
+        fields = ['id', 'id_course', 'id_member']

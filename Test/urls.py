@@ -24,7 +24,9 @@ urlpatterns = [
     path('api/member', views.member),
     path('api/trainer', views.trainer),
     path('api/sport', views.sport),
-    path('api/coaching', views.coaching),
+    path('api/coursedate', views.coursedate),
+    path('api/course', views.course),
+    path('api/participant', views.participant),
     path('api/toggle-staff', views.toggle_staff_status),
     path('api/login/', views.user_login),
 ]

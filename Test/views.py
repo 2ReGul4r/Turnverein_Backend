@@ -1,7 +1,3 @@
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives import hashes
 from django.contrib.auth import authenticate, login
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
@@ -9,6 +5,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
+from django.http import JsonResponse
 from .models import *
 from .serializers import *
 
@@ -344,34 +341,22 @@ def toggle_staff_status(request):
         user.save()
         return Response({'message': 'Benutzer wurde zum Administrator ernannt.'}, status=status.HTTP_200_OK)
     
-@api_view(['POST'])
+@api_view(['GET', 'POST'])
 def user_login(request):
-    username = request.data.get('username')
-    encrypted_password = request.data.get('password')
-    
-    password = decrypt_password(encrypted_password)
-
-    user = authenticate(request, username=username, password=password)
+    if request.method == 'GET':
+        username = request.query_params.get('username', None)
+        password = request.query_params.get('password', None)
+        
+        user = authenticate(request, username=username, password=password)
+        
+    if request.method == 'POST':
+        username = request.data.get('username')
+        password = request.data.get('password')
+        user = authenticate(request, username=username, password=password)
 
     if user is not None:
         token, created = Token.objects.get_or_create(user=user)
         login(request, user)
-        return Response({'token': token.key}, status=status.HTTP_200_OK)
+        return JsonResponse({'token': token.key}, status=status.HTTP_200_OK)
     else:
-        return Response({'error': 'Ungültige Anmeldeinformationen.'}, status=status.HTTP_401_UNAUTHORIZED)
-
-
-def decrypt_password(encrypted_password):
-    with open('private_key.pem', 'rb') as private_key_file:
-        private_pem = private_key_file.read()
-        private_key = serialization.load_pem_private_key(private_pem, password=None)
-        
-    decrypted_text = private_key.decrypt(
-        encrypted_password,
-        padding.OAEP(
-            mgf=padding.MGF1(algorithm=hashes.SHA256()),
-            algorithm=hashes.SHA256(),
-            label=None
-        )
-    )
-    return decrypted_text.decode('utf-8')
+        return JsonResponse({'error': 'Ungültige Anmeldeinformationen.'}, status=status.HTTP_401_UNAUTHORIZED)

@@ -236,8 +236,8 @@ def coursedate(request):
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
-#@permission_classes([IsAuthenticated])
-#@authentication_classes([TokenAuthentication]) 
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication]) 
 def course(request):
     if request.method == 'GET':
         course_list = Course.objects.all()

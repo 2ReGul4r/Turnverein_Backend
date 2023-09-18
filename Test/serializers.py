@@ -7,12 +7,14 @@ class CitySerializer(serializers.ModelSerializer):
         fields = ['postcode', 'city']
         
 class MemberSerializer(serializers.ModelSerializer):
+    postcode = CitySerializer(read_only=True)
     class Meta:
         model = Member
         fields = ['id', 'first_name', 'last_name', 'birthday', 'street', 'house_number', 'postcode']
         extra_kwargs = {'id': {'read_only': True}}
         
 class TrainerSerializer(serializers.ModelSerializer):
+    postcode = CitySerializer(read_only=True)
     class Meta:
         model = Trainer
         fields = ['id', 'first_name', 'last_name', 'birthday', 'street', 'house_number', 'postcode', 'username', 'password']
@@ -23,23 +25,27 @@ class SportSerializer(serializers.ModelSerializer):
         model = Sport
         fields = ['id', 'name']
         extra_kwargs = {'id': {'read_only': True}}
-        
-class CourseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Course
-        fields = ['id', 'sport', 'trainer', 'date', 'hall']
-        extra_kwargs = {'id': {'read_only': True}}
-        
+
 class CoursedateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Coursedate
         fields = ['id', 'course_length', 'days', 'hour', 'minute']
         extra_kwargs = {'id': {'read_only': True}}
-        
+
 class ParticipantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Participant
         fields = ['id', 'id_course', 'id_member']
+        extra_kwargs = {'id': {'read_only': True}}
+
+class CourseSerializer(serializers.ModelSerializer):
+    sport = SportSerializer(read_only=True)
+    trainer = TrainerSerializer(read_only=True)
+    date = CoursedateSerializer(read_only=True)
+    members = ParticipantSerializer(many=True, read_only=True)
+    class Meta:
+        model = Course
+        fields = ['id', 'sport', 'trainer', 'date', 'hall', 'members']
         extra_kwargs = {'id': {'read_only': True}}
         
 class RegistrationSerializer(serializers.ModelSerializer):

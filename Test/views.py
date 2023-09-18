@@ -102,7 +102,7 @@ def member(request):
         
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET', 'POST', 'PUT', 'DELETE'])
+@api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
 @authentication_classes([TokenAuthentication]) 
 def trainer(request):
@@ -134,12 +134,6 @@ def trainer(request):
             trainer_list = trainer_list.filter(username__icontains=username.lower())
         serializer = TrainerSerializer(trainer_list, many=True)
         return Response({'data': serializer.data}, status=status.HTTP_200_OK)
-
-    elif request.method == 'POST':
-        serializer = TrainerSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'data': serializer.data}, status=status.HTTP_201_CREATED)
         
     elif request.method == 'PUT':
         serializer = TrainerSerializer(data=request.data)
@@ -320,6 +314,13 @@ def participant(request):
         
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_data(request):
+    user = Trainer.objects.get(id=request.user.id)
+    serializer = TrainerSerializer(user)
+    return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, IsAdminUser])
 @authentication_classes([TokenAuthentication])
@@ -330,16 +331,36 @@ def toggle_staff_status(request):
     try:
         user = Trainer.objects.get(id=id)
     except Trainer.DoesNotExist:
-        return Response({'error': 'Benutzer wurde nicht gefunden.'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
     if user.is_staff:
         user.is_staff = False 
         user.save()
-        return Response({'message': 'Administratorstatus des Benutzers wurde entfernt.'}, status=status.HTTP_200_OK)
+        return Response({'message': 'Removed admin access'}, status=status.HTTP_200_OK)
     else:
         user.is_staff = True
         user.save()
-        return Response({'message': 'Benutzer wurde zum Administrator ernannt.'}, status=status.HTTP_200_OK)
+        return Response({'message': 'Granted admin access'}, status=status.HTTP_200_OK)
+    
+@api_view(['POST'])
+def register(request):
+    postcode = request.data.get('postcode', None)
+    city = request.data.get('city', None)
+    
+    try: 
+        City.objects.get(postcode=postcode)
+    except: 
+        city_serializer = CitySerializer(data={'postcode': postcode, 'city': city})
+        if city_serializer.is_valid():
+            city_serializer.save()
+    
+    trainer_data = request.data
+    del trainer_data['city']
+    
+    register_serializer = RegistrationSerializer(data=trainer_data)
+    if register_serializer.is_valid():
+        register_serializer.save()
+        return JsonResponse({'data': register_serializer.data}, status=status.HTTP_201_CREATED)
     
 @api_view(['GET', 'POST'])
 def user_login(request):
@@ -359,4 +380,23 @@ def user_login(request):
         login(request, user)
         return JsonResponse({'token': token.key}, status=status.HTTP_200_OK)
     else:
-        return JsonResponse({'error': 'Ungültige Anmeldeinformationen.'}, status=status.HTTP_401_UNAUTHORIZED)
+        return JsonResponse({'error': 'Wrong login credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+    
+@api_view(['POST'])
+def check_valid_token(request):
+    token = request.data.get('token')
+    try:
+        Token.objects.get(key=token)
+        return JsonResponse({'token': token}, status=status.HTTP_200_OK)
+    except Token.DoesNotExist:
+        return JsonResponse({'error': 'Token does not exist'}, status=status.HTTP_401_UNAUTHORIZED)
+    
+@api_view(['POST'])
+def logout(request):
+    token = request.data.get('token')
+    try:
+        token_object = Token.objects.get(key=token)
+        token_object.delete()
+    except Token.DoesNotExist:
+        pass
+    return Response({'message': 'Token deleted'}, status=status.HTTP_200_OK)

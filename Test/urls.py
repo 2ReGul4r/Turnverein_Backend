@@ -27,6 +27,9 @@ urlpatterns = [
     path('api/coursedate', views.coursedate),
     path('api/course', views.course),
     path('api/participant', views.participant),
+    path('api/userdata', views.user_data),
     path('api/toggle-staff', views.toggle_staff_status),
-    path('api/login/', views.user_login),
+    path('api/login', views.user_login),
+    path('api/check-auth', views.check_valid_token),
+    path('api/logout', views.logout),
 ]

@@ -230,8 +230,8 @@ def coursedate(request):
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
-#@permission_classes([IsAuthenticated])
-#@authentication_classes([TokenAuthentication]) 
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication]) 
 def course(request):
     if request.method == 'GET':
         course_list = Course.objects.all()
@@ -243,7 +243,7 @@ def course(request):
         if sport:
             course_list = course_list.filter(sport__icontains=sport.lower())
         if trainer:
-            course_list = course_list.filter(trainer__icontains=trainer.lower())
+            course_list = course_list.filter(trainer_id=trainer)
         serializer = CourseSerializer(course_list, many=True)
         return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
@@ -317,8 +317,10 @@ def participant(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def user_data(request):
-    user = Trainer.objects.get(id=request.user.id)
-    serializer = TrainerSerializer(user)
+    trainer = Trainer.objects.get(pk=request.user.id)
+    serializer = TrainerSerializer(trainer)
+    #courses = Course.objects.get(trainer_id=request.user.id)
+    #courses_serializer = CourseSerializer(courses, many=True) 'courses': courses_serializer.data},
     return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
@@ -362,18 +364,11 @@ def register(request):
         register_serializer.save()
         return JsonResponse({'data': register_serializer.data}, status=status.HTTP_201_CREATED)
     
-@api_view(['GET', 'POST'])
+@api_view(['POST'])
 def user_login(request):
-    if request.method == 'GET':
-        username = request.query_params.get('username', None)
-        password = request.query_params.get('password', None)
-        
-        user = authenticate(request, username=username, password=password)
-        
-    if request.method == 'POST':
-        username = request.data.get('username')
-        password = request.data.get('password')
-        user = authenticate(request, username=username, password=password)
+    username = request.data.get('username')
+    password = request.data.get('password')
+    user = authenticate(request, username=username, password=password)
 
     if user is not None:
         token, created = Token.objects.get_or_create(user=user)
@@ -386,8 +381,9 @@ def user_login(request):
 def check_valid_token(request):
     token = request.data.get('token')
     try:
-        Token.objects.get(key=token)
-        return JsonResponse({'token': token}, status=status.HTTP_200_OK)
+        token_obj = Token.objects.get(key=token)
+        serializer = TrainerSerializer(token_obj.user)
+        return JsonResponse({'token': token, 'user': serializer.data}, status=status.HTTP_200_OK)
     except Token.DoesNotExist:
         return JsonResponse({'error': 'Token does not exist'}, status=status.HTTP_401_UNAUTHORIZED)
     

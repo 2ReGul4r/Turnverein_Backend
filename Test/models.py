@@ -14,7 +14,7 @@ class Member(models.Model):
     birthday = models.DateField()
     street = models.CharField(max_length=64)
     house_number = models.CharField(max_length=8)
-    postcode = models.ForeignKey(City, on_delete=models.RESTRICT)
+    postcode = models.ForeignKey(City, related_name='m_city', on_delete=models.RESTRICT)
     
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
@@ -25,7 +25,7 @@ class Trainer(AbstractUser):
     birthday = models.DateField()
     street = models.CharField(max_length=64)
     house_number = models.CharField(max_length=8)
-    postcode = models.ForeignKey(City, on_delete=models.RESTRICT)
+    postcode = models.ForeignKey(City, related_name='t_city', on_delete=models.RESTRICT)
     
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
@@ -60,14 +60,14 @@ class Coursedate(models.Model):
         return f'{", ".join(day_list[::-1])} at {self.hour}:{str(self.minute).zfill(2)}'
 
 class Course(models.Model):
-    sport = models.ForeignKey(Sport, on_delete=models.CASCADE)
-    trainer = models.ForeignKey(Trainer, on_delete=models.CASCADE)
-    date = models.ForeignKey(Coursedate, on_delete=models.CASCADE)
+    sport = models.ForeignKey(Sport, related_name='sport', on_delete=models.CASCADE)
+    trainer = models.ForeignKey(Trainer, related_name='trainer', on_delete=models.CASCADE)
+    date = models.ForeignKey(Coursedate, related_name='date', on_delete=models.CASCADE)
     hall = models.CharField(max_length=64)
     
     def __str__(self):
         return f'{self.sport} with {self.trainer}'
     
 class Participant(models.Model):
-    id_course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    id_member = models.ForeignKey(Member, on_delete=models.CASCADE)
+    id_course = models.ForeignKey(Course, related_name='course', on_delete=models.CASCADE)
+    id_member = models.ForeignKey(Member, related_name='member', on_delete=models.CASCADE)

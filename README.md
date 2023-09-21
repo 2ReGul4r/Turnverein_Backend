@@ -1,5 +1,3 @@
-# default
-
 ## Initial Project setup
 ```
 From Test_Django Folder

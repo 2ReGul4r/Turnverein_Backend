@@ -18,7 +18,7 @@ def city(request):
         city = request.query_params.get('city', None)
         postcode = request.query_params.get('postcode', None)
         if city:
-            city_list = city_list.filter(city__icontains=city.lower())  
+            city_list = city_list.filter(city__icontains=city.lower())
         if postcode:
             city_list = city_list.filter(postcode=postcode)    
         serializer = CitySerializer(city_list, many=True)

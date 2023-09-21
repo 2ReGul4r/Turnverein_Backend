@@ -61,7 +61,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
             'house_number',
             'postcode',
             'password', 
-            'is_active', 
+            'is_active',
             'is_staff'
         ]
         extra_kwargs = {'id': {'read_only': True}, 'password': {'write_only': True}}

@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from django.http import JsonResponse
@@ -75,8 +76,12 @@ def member(request):
             member_list = member_list.filter(house_number=house_number)
         if postcode:
             member_list = member_list.filter(postcode=postcode)
-        serializer = MemberSerializer(member_list, many=True)
-        return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+        paginator = PageNumberPagination()
+        result_page = paginator.paginate_queryset(queryset=member_list, request=request)
+        serializer = MemberSerializer(result_page, many=True)
+        total_items = member_list.count()
+        total_pages = (total_items + paginator.page_size - 1) // paginator.page_size
+        return Response({'data': serializer.data, 'page_count': total_pages}, status=status.HTTP_200_OK)
 
     elif request.method == 'POST':
         serializer = MemberSerializer(data=request.data)
@@ -132,8 +137,12 @@ def trainer(request):
             trainer_list = trainer_list.filter(postcode=postcode)
         if username:
             trainer_list = trainer_list.filter(username__icontains=username.lower())
-        serializer = TrainerSerializer(trainer_list, many=True)
-        return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+        paginator = PageNumberPagination()
+        result_page = paginator.paginate_queryset(queryset=trainer_list, request=request)
+        serializer = TrainerSerializer(result_page, many=True)
+        total_items = trainer_list.count()
+        total_pages = (total_items + paginator.page_size - 1) // paginator.page_size
+        return Response({'data': serializer.data, 'page_count': total_pages}, status=status.HTTP_200_OK)
         
     elif request.method == 'PUT':
         serializer = TrainerSerializer(data=request.data)
@@ -244,8 +253,12 @@ def course(request):
             course_list = course_list.filter(sport__icontains=sport.lower())
         if trainer:
             course_list = course_list.filter(trainer_id=trainer)
-        serializer = CourseSerializer(course_list, many=True)
-        return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+        paginator = PageNumberPagination()
+        result_page = paginator.paginate_queryset(queryset=course_list, request=request)
+        serializer = CourseSerializer(result_page, many=True)
+        total_items = course_list.count()
+        total_pages = (total_items + paginator.page_size - 1) // paginator.page_size
+        return Response({'data': serializer.data, 'page_count': total_pages}, status=status.HTTP_200_OK)
 
     elif request.method == 'POST':
         serializer = CourseSerializer(data=request.data)
@@ -319,8 +332,6 @@ def participant(request):
 def user_data(request):
     trainer = Trainer.objects.get(pk=request.user.id)
     serializer = TrainerSerializer(trainer)
-    #courses = Course.objects.get(trainer_id=request.user.id)
-    #courses_serializer = CourseSerializer(courses, many=True) 'courses': courses_serializer.data},
     return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
 @api_view(['POST'])

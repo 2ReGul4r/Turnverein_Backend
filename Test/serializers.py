@@ -17,7 +17,7 @@ class TrainerSerializer(serializers.ModelSerializer):
     postcode = CitySerializer(read_only=True)
     class Meta:
         model = Trainer
-        fields = ['id', 'first_name', 'last_name', 'birthday', 'street', 'house_number', 'postcode', 'username', 'password']
+        fields = ['id', 'first_name', 'last_name', 'birthday', 'street', 'house_number', 'postcode', 'username', 'password', 'is_staff', 'last_login']
         extra_kwargs = {'password': {'write_only': True}, 'id': {'read_only': True}}
         
 class SportSerializer(serializers.ModelSerializer):

@@ -6,6 +6,7 @@ from rest_framework.decorators import api_view, permission_classes, authenticati
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
+from django.db.models import Q
 from django.http import JsonResponse
 from .models import *
 from .serializers import *
@@ -114,6 +115,7 @@ def trainer(request):
     if request.method == 'GET':
         trainer_list = Trainer.objects.all()
         id = request.query_params.get('id', None)
+        name = request.query_params.get('name', None)
         first_name = request.query_params.get('first_name', None)
         last_name = request.query_params.get('last_name', None)
         birthday = request.query_params.get('birthday', None)
@@ -123,6 +125,8 @@ def trainer(request):
         username = request.query_params.get('username', None)
         if id:
             trainer_list = trainer_list.filter(id=id)
+        if name:
+            trainer_list = trainer_list.filter(Q(first_name__icontains=name.lower()) | Q(last_name__icontains=name.lower()) | Q(username__icontains=name.lower()))
         if first_name:
             trainer_list = trainer_list.filter(first_name__icontains=first_name.lower())
         if last_name:

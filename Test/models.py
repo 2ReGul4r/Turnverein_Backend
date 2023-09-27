@@ -20,8 +20,6 @@ class Member(models.Model):
         return f'{self.first_name} {self.last_name}'
     
 class Trainer(AbstractUser):
-    first_name = models.CharField(max_length=64)
-    last_name = models.CharField(max_length=64)
     birthday = models.DateField()
     street = models.CharField(max_length=64)
     house_number = models.CharField(max_length=8)

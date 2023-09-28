@@ -33,9 +33,10 @@ class CoursedateSerializer(serializers.ModelSerializer):
         extra_kwargs = {'id': {'read_only': True}}
 
 class ParticipantSerializer(serializers.ModelSerializer):
+    member = MemberSerializer(read_only=True)
     class Meta:
         model = Participant
-        fields = ['id', 'id_course', 'id_member']
+        fields = ['id', 'course', 'member']
         extra_kwargs = {'id': {'read_only': True}}
 
 class CourseSerializer(serializers.ModelSerializer):

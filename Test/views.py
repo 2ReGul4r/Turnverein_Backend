@@ -297,9 +297,9 @@ def participant(request):
         course = request.query_params.get('course', None)
         member = request.query_params.get('member', None)
         if course:
-            participant_list = participant_list.filter(id_course=course)
+            participant_list = participant_list.filter(course=course)
         if member:
-            participant_list = participant_list.filter(id_member=member)
+            participant_list = participant_list.filter(member=member)
         serializer = ParticipantSerializer(participant_list, many=True)
         return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
@@ -323,7 +323,7 @@ def participant(request):
             
         if course and member:
             try:
-                course = Course.objects.get(id_member=member, id_course=course)
+                course = Course.objects.get(member=member, course=course)
                 course.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
             except Course.DoesNotExist:

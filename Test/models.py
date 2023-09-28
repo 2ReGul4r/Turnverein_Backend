@@ -9,8 +9,8 @@ class City(models.Model):
         return f'{self.city} ({self.postcode})'
     
 class Member(models.Model):
-    first_name = models.CharField(max_length=64)
-    last_name = models.CharField(max_length=64)
+    first_name = models.CharField(max_length=64, default="Max")
+    last_name = models.CharField(max_length=64, default="Mustermann")
     birthday = models.DateField()
     street = models.CharField(max_length=64)
     house_number = models.CharField(max_length=8)
@@ -67,5 +67,5 @@ class Course(models.Model):
         return f'{self.sport} with {self.trainer}'
     
 class Participant(models.Model):
-    id_course = models.ForeignKey(Course, related_name='course', on_delete=models.CASCADE)
-    id_member = models.ForeignKey(Member, related_name='member', on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, related_name='course', on_delete=models.CASCADE)
+    member = models.ForeignKey(Member, related_name='member', on_delete=models.CASCADE)

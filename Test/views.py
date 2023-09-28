@@ -76,7 +76,7 @@ def member(request):
         if house_number:
             member_list = member_list.filter(house_number=house_number)
         if postcode:
-            member_list = member_list.filter(postcode=postcode)
+            member_list = member_list.filter(postcode_id=postcode)
         paginator = PageNumberPagination()
         result_page = paginator.paginate_queryset(queryset=member_list, request=request)
         serializer = MemberSerializer(result_page, many=True)
@@ -86,6 +86,7 @@ def member(request):
 
     elif request.method == 'POST':
         serializer = MemberSerializer(data=request.data)
+        print('data', request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({'data': serializer.data}, status=status.HTTP_201_CREATED)

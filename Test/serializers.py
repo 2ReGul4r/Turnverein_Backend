@@ -8,17 +8,19 @@ class CitySerializer(serializers.ModelSerializer):
         
 class MemberSerializer(serializers.ModelSerializer):
     postcode = CitySerializer(read_only=True)
+    postcode_id = serializers.IntegerField(write_only=True)
     class Meta:
         model = Member
-        fields = ['id', 'first_name', 'last_name', 'birthday', 'street', 'house_number', 'postcode']
-        extra_kwargs = {'id': {'read_only': True}}
+        fields = ['id', 'first_name', 'last_name', 'birthday', 'street', 'house_number', 'postcode_id', 'postcode']
+        extra_kwargs = {'id': {'read_only': True}, 'postcode': {'read_only': True}}
         
 class TrainerSerializer(serializers.ModelSerializer):
     postcode = CitySerializer(read_only=True)
+    postcode_id = serializers.IntegerField(write_only=True)
     class Meta:
         model = Trainer
-        fields = ['id', 'first_name', 'last_name', 'birthday', 'street', 'house_number', 'postcode', 'username', 'password', 'is_staff', 'last_login']
-        extra_kwargs = {'password': {'write_only': True}, 'id': {'read_only': True}}
+        fields = ['id', 'first_name', 'last_name', 'birthday', 'street', 'house_number', 'postcode_id', 'postcode', 'username', 'password', 'is_staff', 'last_login']
+        extra_kwargs = {'password': {'write_only': True}, 'id': {'read_only': True}, 'postcode': {'read_only': True}}
         
 class SportSerializer(serializers.ModelSerializer):
     class Meta:
@@ -34,19 +36,22 @@ class CoursedateSerializer(serializers.ModelSerializer):
 
 class ParticipantSerializer(serializers.ModelSerializer):
     member = MemberSerializer(read_only=True)
+    course_id = serializers.IntegerField(write_only=True)
+    member_id = serializers.IntegerField(write_only=True)
     class Meta:
         model = Participant
-        fields = ['id', 'course', 'member']
-        extra_kwargs = {'id': {'read_only': True}}
+        fields = ['id', 'course', 'member', 'course_id', 'member_id']
+        extra_kwargs = {'id': {'read_only': True}, 'course': {'read_only': True}, 'member': {'read_only': True}}
 
 class CourseSerializer(serializers.ModelSerializer):
     sport = SportSerializer()
     trainer = TrainerSerializer(read_only=True)
+    trainer_id = serializers.IntegerField(write_only=True)
     date = CoursedateSerializer()
     class Meta:
         model = Course
-        fields = ['id', 'sport', 'trainer', 'date', 'hall']
-        extra_kwargs = {'id': {'read_only': True}}
+        fields = ['id', 'sport', 'trainer_id', 'trainer', 'date', 'hall']
+        extra_kwargs = {'id': {'read_only': True}, 'trainer': {'read_only': True}}
         
 class RegistrationSerializer(serializers.ModelSerializer):
     class Meta:

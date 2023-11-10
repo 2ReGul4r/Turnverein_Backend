@@ -57,6 +57,7 @@ def member(request):
     if request.method == 'GET':
         member_list = Member.objects.all()
         id = request.query_params.get('id', None)
+        name = request.query_params.get('name', None)
         first_name = request.query_params.get('first_name', None)
         last_name = request.query_params.get('last_name', None)
         birthday = request.query_params.get('birthday', None)
@@ -65,6 +66,8 @@ def member(request):
         postcode = request.query_params.get('postcode', None)
         if id:
             member_list = member_list.filter(id=id)
+        if name:
+            member_list = member_list.filter(Q(first_name__icontains=name.lower()) | Q(last_name__icontains=name.lower()))
         if first_name:
             member_list = member_list.filter(first_name__icontains=first_name.lower())
         if last_name:
@@ -389,9 +392,11 @@ def user_login(request):
     if user is not None:
         token, created = Token.objects.get_or_create(user=user)
         login(request, user)
-        return JsonResponse({'token': token.key}, status=status.HTTP_200_OK)
+        trainerData = Trainer.objects.get(username=username)
+        serializer = TrainerSerializer(trainerData)
+        return Response({'token': token.key, 'userdata': serializer.data}, status=status.HTTP_200_OK)
     else:
-        return JsonResponse({'error': 'Wrong login credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({'error': 'Wrong login credentials'}, status=status.HTTP_401_UNAUTHORIZED)
     
 @api_view(['POST'])
 def check_valid_token(request):

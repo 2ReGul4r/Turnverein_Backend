@@ -7,7 +7,6 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from django.db.models import Q
-from django.http import JsonResponse
 from .models import *
 from .serializers import *
 
@@ -39,7 +38,7 @@ def city(request):
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
         
     elif request.method == 'DELETE':
-        postcode = request.data.get('postcode')
+        postcode = request.query_params.get('postcode')
         if postcode:
             try:
                 city = City.objects.get(postcode=postcode)
@@ -52,7 +51,7 @@ def city(request):
 
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
-@authentication_classes([TokenAuthentication]) 
+@authentication_classes([TokenAuthentication])
 def member(request):
     if request.method == 'GET':
         member_list = Member.objects.all()
@@ -88,20 +87,51 @@ def member(request):
         return Response({'data': serializer.data, 'page_count': total_pages}, status=status.HTTP_200_OK)
 
     elif request.method == 'POST':
+        cityData = request.data.get('postcode', None)
+        if cityData:
+            postcode = cityData.get('postcode', None)
+            city = cityData.get('city', None)
+        
+        try: 
+            City.objects.get(postcode=postcode)
+        except: 
+            city_serializer = CitySerializer(data={'postcode': postcode, 'city': city})
+            if city_serializer.is_valid():
+                city_serializer.save()
+        
+        member_data = request.data
+        member_data['postcode_id'] = postcode
         serializer = MemberSerializer(data=request.data)
-        print('data', request.data)
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response({'data': serializer.data}, status=status.HTTP_201_CREATED)
         
     elif request.method == 'PUT':
-        serializer = MemberSerializer(data=request.data)
+        data = request.data
+        instance = Member.objects.get(id=data.pop('id'))
+        postcodeData = data.get('postcode', None)
+        if postcodeData:
+            try:
+                City.objects.get(pk=postcodeData['postcode'])
+            except:
+                city_serializer = CitySerializer(data={'postcode': postcodeData['postcode'], 'city': postcodeData['city']})
+                if city_serializer.is_valid():
+                    city_serializer.save()
+            data['postcode_id'] = postcodeData['postcode']
+        else:
+            data['postcode_id'] = instance.postcode.postcode
+        data['first_name'] = data.get('first_name', instance.first_name)
+        data['last_name'] = data.get('last_name', instance.last_name)
+        data['birthday'] = data.get('birthday', instance.birthday)
+        data['street'] = data.get('street', instance.street)
+        data['house_number'] = data.get('house_number', instance.house_number)
+        serializer = MemberSerializer(instance, data=data)
         if serializer.is_valid():
             serializer.save()
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
         
     elif request.method == 'DELETE':
-        id = request.data.get('id')
+        id = request.query_params.get('id')
         if id:
             try:
                 member = Member.objects.get(id=id)
@@ -114,7 +144,7 @@ def member(request):
 
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
-@authentication_classes([TokenAuthentication]) 
+@authentication_classes([TokenAuthentication])
 def trainer(request):
     if request.method == 'GET':
         trainer_list = Trainer.objects.all()
@@ -153,16 +183,35 @@ def trainer(request):
         return Response({'data': serializer.data, 'page_count': total_pages}, status=status.HTTP_200_OK)
         
     elif request.method == 'PUT':
-        serializer = TrainerSerializer(data=request.data)
-        if serializer.is_valid():
+        data = request.data
+        instance = Trainer.objects.get(id=data.pop('id'))
+        postcodeData = data.get('postcode', None)
+        if postcodeData:
+            try:
+                City.objects.get(pk=postcodeData['postcode'])
+            except:
+                city_serializer = CitySerializer(data={'postcode': postcodeData['postcode'], 'city': postcodeData['city']})
+                if city_serializer.is_valid():
+                    city_serializer.save()
+            data['postcode_id'] = postcodeData['postcode']
+        else:
+            data['postcode_id'] = instance.postcode.postcode
+        data['first_name'] = data.get('first_name', instance.first_name)
+        data['last_name'] = data.get('last_name', instance.last_name)
+        data['birthday'] = data.get('birthday', instance.birthday)
+        data['street'] = data.get('street', instance.street)
+        data['house_number'] = data.get('house_number', instance.house_number)
+        data['username'] = data.get('username', instance.username)
+        data['password'] = data.get('password', instance.password)
+        serializer = TrainerSerializer(instance, data=data)
+        if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
         
     elif request.method == 'DELETE':
         if not request.user.is_staff:
             return Response(status=status.HTTP_403_FORBIDDEN)
-        id = request.data.get('id')
-        username = request.data.get('username')
+        id = request.query_params.get('id')
         if id:
             try:
                 trainer = Trainer.objects.get(id=id)
@@ -175,7 +224,7 @@ def trainer(request):
 
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
-@authentication_classes([TokenAuthentication]) 
+@authentication_classes([TokenAuthentication])
 def sport(request):
     if request.method == 'GET':
         sport_list = Sport.objects.all()
@@ -194,8 +243,10 @@ def sport(request):
             serializer.save()
             return Response({'data': serializer.data}, status=status.HTTP_201_CREATED)
         
-    elif request.method == 'PUT':
-        serializer = SportSerializer(data=request.data)
+    elif request.method == 'PUT':   
+        data = request.data
+        instance = Sport.objects.get(pk=data.pop('id'))
+        serializer = SportSerializer(instance, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
@@ -213,6 +264,8 @@ def sport(request):
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
 def coursedate(request):
     if request.method == 'GET':
         coursedate_list = Coursedate.objects.all()
@@ -229,8 +282,13 @@ def coursedate(request):
             return Response({'data': serializer.data}, status=status.HTTP_201_CREATED)
         
     elif request.method == 'PUT':
-        serializer = CoursedateSerializer(data=request.data)
-        if serializer.is_valid():
+        data = request.data
+        instance = Coursedate.objects.get(pk=data.pop('id'))
+        data['days'] = data.get('days', instance.days)
+        data['hour'] = data.get('hour', instance.hour)
+        data['minute'] = data.get('minute', instance.minute)
+        serializer = CoursedateSerializer(instance, data=request.data)
+        if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
         
@@ -248,7 +306,7 @@ def coursedate(request):
 
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
-@authentication_classes([TokenAuthentication]) 
+@authentication_classes([TokenAuthentication])
 def course(request):
     if request.method == 'GET':
         course_list = Course.objects.all()
@@ -275,8 +333,14 @@ def course(request):
             return Response({'data': serializer.data}, status=status.HTTP_201_CREATED)
         
     elif request.method == 'PUT':
-        serializer = CourseSerializer(data=request.data)
-        if serializer.is_valid():
+        data = request.data
+        instance = Course.objects.get(id=data.pop('id'))
+        data['trainer_id'] = data.get('trainer_id', instance.trainer.pk)
+        data['sport'] = data.get('sport', { "id": instance.sport.pk, "name": instance.sport.name })
+        data['date'] = data.get('date', { "id": instance.date.pk, "course_length": instance.date.course_length, "days": instance.date.days, "hour": instance.date.hour, "minute": instance.date.minute })
+        data['hall'] = data.get('hall', instance.hall)
+        serializer = CourseSerializer(instance, data=data)
+        if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
         
@@ -294,7 +358,7 @@ def course(request):
 
 @api_view(['GET', 'POST', 'DELETE'])
 @permission_classes([IsAuthenticated])
-@authentication_classes([TokenAuthentication]) 
+@authentication_classes([TokenAuthentication])
 def participant(request):
     if request.method == 'GET':
         participant_list = Participant.objects.all()
@@ -315,8 +379,8 @@ def participant(request):
         
     elif request.method == 'DELETE':
         id = request.query_params.get('id', None)
-        course = request.query_params.get('course', None)
-        member = request.query_params.get('member', None)
+        course = request.query_params.get('course_id', None)
+        member = request.query_params.get('member_id', None)
         if id:
             try:
                 participant = Participant.objects.get(id=id)
@@ -335,15 +399,8 @@ def participant(request):
         
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def user_data(request):
-    trainer = Trainer.objects.get(pk=request.user.id)
-    serializer = TrainerSerializer(trainer)
-    return Response({'data': serializer.data}, status=status.HTTP_200_OK)
-
 @api_view(['POST'])
-@permission_classes([IsAuthenticated, IsAdminUser])
+@permission_classes([IsAuthenticated])
 @authentication_classes([TokenAuthentication])
 def toggle_staff_status(request):
     id = request.query_params.get('id', None)
@@ -364,9 +421,13 @@ def toggle_staff_status(request):
         return Response({'message': 'Granted admin access'}, status=status.HTTP_200_OK)
     
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
 def register(request):
-    postcode = request.data.get('postcode', None)
-    city = request.data.get('city', None)
+    cityData = request.data.get('postcode', None)
+    if cityData:
+        postcode = cityData.get('postcode', None)
+        city = cityData.get('city', None)
     
     try: 
         City.objects.get(postcode=postcode)
@@ -376,12 +437,14 @@ def register(request):
             city_serializer.save()
     
     trainer_data = request.data
-    del trainer_data['city']
+    trainer_data['postcode_id'] = postcode
+    trainer_data['is_active'] = True
     
     register_serializer = RegistrationSerializer(data=trainer_data)
-    if register_serializer.is_valid():
+    if register_serializer.is_valid(raise_exception=True):
         register_serializer.save()
-        return JsonResponse({'data': register_serializer.data}, status=status.HTTP_201_CREATED)
+        return Response({'data': register_serializer.data}, status=status.HTTP_201_CREATED)
+    return Response(status=status.HTTP_400_BAD_REQUEST)
     
 @api_view(['POST'])
 def user_login(request):
@@ -404,16 +467,18 @@ def check_valid_token(request):
     try:
         token_obj = Token.objects.get(key=token)
         serializer = TrainerSerializer(token_obj.user)
-        return JsonResponse({'token': token, 'user': serializer.data}, status=status.HTTP_200_OK)
+        return Response({'token': token, 'user': serializer.data}, status=status.HTTP_200_OK)
     except Token.DoesNotExist:
-        return JsonResponse({'error': 'Token does not exist'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({'error': 'Token does not exist'}, status=status.HTTP_404_NOT_FOUND)
     
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
 def logout(request):
     token = request.data.get('token')
     try:
         token_object = Token.objects.get(key=token)
         token_object.delete()
     except Token.DoesNotExist:
-        pass
+        return Response({'error': 'Token does not exist'}, status=status.HTTP_404_NOT_FOUND)
     return Response({'message': 'Token deleted'}, status=status.HTTP_200_OK)

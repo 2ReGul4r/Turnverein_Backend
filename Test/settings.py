@@ -57,6 +57,7 @@ CORS_ALLOW_METHODS = [
 
 INSTALLED_APPS = [
     'Test',
+    'drf_yasg',
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',

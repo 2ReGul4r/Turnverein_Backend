@@ -20,7 +20,7 @@ class TrainerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Trainer
         fields = ['id', 'first_name', 'last_name', 'birthday', 'street', 'house_number', 'postcode_id', 'postcode', 'username', 'password', 'is_staff', 'last_login']
-        extra_kwargs = {'password': {'write_only': True}, 'id': {'read_only': True}, 'postcode': {'read_only': True}}
+        extra_kwargs = {'password': {'write_only': True}, 'id': {'read_only': True}, 'postcode': {'read_only': True}, 'is_staff': {'read_only': True}, 'last_login': {'read_only': True}}
         
 class SportSerializer(serializers.ModelSerializer):
     class Meta:
@@ -52,8 +52,31 @@ class CourseSerializer(serializers.ModelSerializer):
         model = Course
         fields = ['id', 'sport', 'trainer_id', 'trainer', 'date', 'hall']
         extra_kwargs = {'id': {'read_only': True}, 'trainer': {'read_only': True}}
+    
+    def create(self, validated_data):
+        sportData = validated_data.pop('sport')
+        sport = Sport.objects.get_or_create(name=sportData['name'])
+        dateData = validated_data.pop('date')
+        date = Coursedate.objects.get_or_create(course_length=dateData['course_length'], days=dateData['days'], hour=dateData['hour'], minute=dateData['minute'])
+        return Course.objects.create(sport=sport[0], trainer_id=validated_data['trainer_id'], date=date[0], hall=validated_data['hall'])
+    
+    def update(self, instance, validated_data):
+        if validated_data.get('sport'):
+            sportData = validated_data.pop('sport')
+            sport = Sport.objects.get_or_create(name=sportData['name'])
+            instance.sport = sport[0]
+        instance.trainer_id = validated_data.get('trainer_id', instance.trainer_id)
+        if validated_data.get('date'):
+            dateData = validated_data.pop('date')
+            date = Coursedate.objects.get_or_create(course_length=dateData['course_length'], days=dateData['days'], hour=dateData['hour'], minute=dateData['minute'])
+            instance.date = date[0]
+        instance.hall = validated_data.get('hall', instance.hall)
+        instance.save()
+        return instance
         
 class RegistrationSerializer(serializers.ModelSerializer):
+    postcode = CitySerializer(read_only=True)
+    postcode_id = serializers.IntegerField(write_only=True)
     class Meta:
         model = Trainer
         fields = [
@@ -65,6 +88,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
             'street',
             'house_number',
             'postcode',
+            'postcode_id',
             'password', 
             'is_active',
             'is_staff'
@@ -78,7 +102,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         birthday = validated_data['birthday']
         street = validated_data['street']
         house_number = validated_data['house_number']
-        postcode = validated_data['postcode']
+        postcode_id = validated_data['postcode_id']
         password = validated_data['password']
 
         user = Trainer.objects.create_user(
@@ -88,7 +112,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
             birthday=birthday,
             street=street,
             house_number=house_number,
-            postcode=postcode,
+            postcode_id=postcode_id,
             password=password,
         )
         return user

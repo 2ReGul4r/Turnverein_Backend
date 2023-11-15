@@ -1,0 +1,1474 @@
+openapi: '3.0.0'
+info:
+  title: Sportverein API
+  contact:
+    email: admin@regul4r.com
+  license:
+    name: No license
+  version: v1
+components:
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+  responses:
+    '401':
+      description: UNAUTHORIZED
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              details:
+                type: string
+                example: Authentication credentials were not provided.
+paths:
+  /trainer:
+    get:
+      summary: 'Returns a list of trainers'
+      operationId: trainer_list
+      parameters: 
+        - in: query
+          name: id
+          description: Search for a specific ID. 
+          schema:
+            type: number
+        - in: query
+          name: name
+          description: Filters in first_name, last_name and username.
+          schema: 
+            type: string
+        - in: query
+          name: fist_name
+          description: Search for a specific first name. 
+          schema:
+            type: string
+        - in: query
+          name: last_name
+          description: Search for a specific last name. 
+          schema:
+            type: string
+        - in: query
+          name: birthday
+          description: Search for a specific birthday. 
+          schema:
+            type: string
+        - in: query
+          name: street
+          description: Search for a specific street. 
+          schema:
+            type: string
+        - in: query
+          name: house_number
+          description: Search for a specific house number. 
+          schema:
+            type: string
+        - in: query
+          name: postcode
+          description: Search for a specific postcode. 
+          schema:
+            type: number
+        - in: query
+          name: username
+          description: Search for a specific username. 
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                    example: [{
+                      id: 1,
+                      first_name: Bennit,
+                      last_name: Vesely,
+                      birthday: 1998-06-24,
+                      street: Teststraße,
+                      house_number: 24,
+                      postcode: {
+                          postcode: 55246,
+                          city: Mainz-Kostheim
+                      },
+                      username: admin,
+                      is_staff: true,
+                      last_login: '2023-11-15T09:43:20.890605Z'
+                  }]
+        '401':
+          $ref: '#/components/responses/401'
+      security:
+        - Bearer: []
+      tags:
+      - Trainer
+    put:
+      summary: 'Update a trainer'
+      operationId: trainer_update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                id:
+                  type: number
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                birthday:
+                  type: string
+                street:
+                  type: string
+                house_number:
+                  type: string
+                postcode:
+                  type: object
+                  properties:
+                    postcode:
+                      type: number
+                    city:
+                      type: string
+                username:
+                  type: string
+            example:
+              id: 1
+              street: Andere Allee
+              house_number: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    example: {
+                      id: 1,
+                      first_name: Bennit,
+                      last_name: Vesely,
+                      birthday: 1998-06-24,
+                      street: Andere Allee,
+                      house_number: 1,
+                      postcode: {
+                          postcode: 55246,
+                          city: Mainz-Kostheim
+                      },
+                      username: admin,
+                      is_staff: true,
+                      last_login: '2023-11-15T09:43:20.890605Z'
+                  }
+        '401':
+          $ref: '#/components/responses/401'
+      security:
+        - Bearer: []
+      tags:
+      - Trainer
+    delete:
+      summary: 'Delete a trainer'
+      description: 'Only staff users can delete trainer'
+      operationId: trainer_delete
+      parameters: 
+        - in: query
+          name: id
+          description: Delete a trainer by its ID.
+          required: true
+          schema:
+            type: number
+      responses:
+        '204':
+          description: NO_CONTENT
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          description: FORBIDDEN
+        '404':
+          description: NOT_FOUND
+      security:
+        - Bearer: []
+      tags:
+      - Trainer
+  /register:
+    post:
+      summary: 'Register for trainer'
+      operationId: register_trainer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                first_name:
+                  type: string
+                  example: max
+                last_name:
+                  type: string
+                  example: mustermann
+                username:
+                  type: string
+                  example: maxmuster
+                birthday:
+                  type: string
+                  example: 1990-12-31
+                street:
+                  type: string
+                  example: Musterstraße
+                house_number:
+                  type: string
+                  example: 12a
+                postcode:
+                  type: object
+                  properties:
+                    postcode:
+                      type: number
+                      example: 10365
+                    city:
+                      type: string
+                      example: Berlin-Lichtenberg
+                is_staff:
+                  type: boolean
+                  example: false
+                is_active:
+                  type: boolean
+                  example: true
+                password:
+                  type: string
+                  example: password123
+      responses:
+        '201':
+          description: CREATED
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    example: {
+                      id: 4,
+                      username: maxmuster,
+                      first_name: max,
+                      last_name: mustermann,
+                      birthday: 1990-12-31,
+                      street: Musterstraße,
+                      house_number: 12a,
+                      postcode: {
+                          postcode: 10365,
+                          city: Berlin-Lichtenberg
+                      },
+                      is_active: true,
+                      is_staff: false
+                  }
+        '401':
+          $ref: '#/components/responses/401'
+      security:
+        - Bearer: []
+      tags:
+      - Trainer
+  /member:
+    get:
+      summary: 'Returns a list of members'
+      operationId: member_list
+      parameters: 
+        - in: query
+          name: id
+          description: Search for a specific ID. 
+          schema:
+            type: number
+        - in: query
+          name: name
+          description: Filters in first_name, last_name and username.
+          schema: 
+            type: string
+        - in: query
+          name: fist_name
+          description: Search for a specific first name. 
+          schema:
+            type: string
+        - in: query
+          name: last_name
+          description: Search for a specific last name. 
+          schema:
+            type: string
+        - in: query
+          name: birthday
+          description: Search for a specific birthday. 
+          schema:
+            type: string
+        - in: query
+          name: street
+          description: Search for a specific street. 
+          schema:
+            type: string
+        - in: query
+          name: house_number
+          description: Search for a specific house number. 
+          schema:
+            type: string
+        - in: query
+          name: postcode
+          description: Search for a specific postcode. 
+          schema:
+            type: number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                    example: [{
+                      id: 1,
+                      first_name: Max,
+                      last_name: Mustermann,
+                      birthday: 2000-01-01,
+                      street: Musterstraße,
+                      house_number: 1a,
+                      postcode: {
+                          postcode: 28357,
+                          city: Bremen
+                      }
+                    }]
+        '401':
+          $ref: '#/components/responses/401'
+      security:
+        - Bearer: []
+      tags:
+      - Member
+    post:
+      summary: 'Create a member'
+      operationId: member_create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                first_name:
+                  type: string
+                  example: max
+                last_name:
+                  type: string
+                  example: mustermann
+                birthday:
+                  type: string
+                  example: 1990-12-31
+                street:
+                  type: string
+                  example: Musterstraße
+                house_number:
+                  type: string
+                  example: 12a
+                postcode:
+                  type: object
+                  properties:
+                    postcode:
+                      type: number
+                      example: 10365
+                    city:
+                      type: string
+                      example: Berlin-Lichtenberg
+      responses:
+        '201':
+          description: CREATED
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    example: {
+                      id: 3,
+                      first_name: max,
+                      last_name: mustermann,
+                      birthday: 1990-12-31,
+                      street: Musterstraße,
+                      house_number: 12a,
+                      postcode: {
+                          postcode: 10365,
+                          city: Berlin-Lichtenberg
+                      }
+                    }
+        '401':
+          $ref: '#/components/responses/401'
+      security:
+        - Bearer: []
+      tags:
+      - Member
+    put:
+      summary: 'Update a member'
+      operationId: member_update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                id:
+                  type: number
+                  example: 1
+                first_name:
+                  type: string
+                  example: Max
+                last_name:
+                  type: string
+                  example: Mustermann
+                birthday:
+                  type: string
+                  example: '1990-10-30'
+                street:
+                  type: string
+                  example: Teststraße
+                house_number:
+                  type: string
+                  example: 12a
+                postcode:
+                  type: object
+                  properties:
+                    postcode:
+                      type: number
+                      example: 10365
+                    city:
+                      type: string
+                      example: Berlin-Lichtenberg
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    example: {
+                      id: 1,
+                      first_name: Max,
+                      last_name: Mustermann,
+                      birthday: 1990-10-30,
+                      street: Teststraße,
+                      house_number: 12a,
+                      postcode: {
+                          postcode: 10365,
+                          city: Berlin-Lichtenberg
+                      }
+                  }
+        '401':
+          $ref: '#/components/responses/401'
+      security:
+        - Bearer: []
+      tags:
+      - Member
+    delete:
+      summary: 'Delete a member'
+      operationId: member_delete
+      parameters: 
+        - in: query
+          name: id
+          description: Delete a member by its ID.
+          required: true
+          schema:
+            type: number
+      responses:
+        '204':
+          description: NO_CONTENT
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          description: FORBIDDEN
+        '404':
+          description: NOT_FOUND
+      security:
+        - Bearer: []
+      tags:
+      - Member
+  /city:
+    get:
+      summary: 'Returns a list of citys'
+      operationId: city_list
+      parameters: 
+        - in: query
+          name: city
+          description: Search for a specific city. 
+          schema:
+            type: string
+        - in: query
+          name: postcode
+          description: Search for a specific postcode.
+          schema: 
+            type: number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                    example: [{
+                      postcode: 14976,
+                      city: Saulgau
+                  }, {
+                      postcode: 16126,
+                      city: Görlitz
+                  }]
+        '401':
+          $ref: '#/components/responses/401'
+      security:
+        - Bearer: []
+      tags:
+      - City
+    post:
+      summary: 'Create a city'
+      operationId: city_create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                city:
+                  type: string
+                postcode:
+                  type: number
+            example:
+              city: Mainz
+              postcode: 55123
+      responses:
+        '201':
+          description: CREATED
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    example: {
+                      city: Mainz,
+                      postcode: 55123
+                    }
+        '401':
+          $ref: '#/components/responses/401'
+      security:
+        - Bearer: []
+      tags:
+      - City
+    put:
+      summary: 'Update a city'
+      operationId: city_update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                postcode:
+                  type: number
+                city:
+                  type: string
+            example:
+              postcode: 55246
+              city: Mainz
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    example: {
+                      postcode: 55246,
+                      city: Mainz
+                    }
+        '401':
+          $ref: '#/components/responses/401'
+      security:
+        - Bearer: []
+      tags:
+      - City
+    delete:
+      summary: 'Delete a city'
+      operationId: city_delete
+      parameters: 
+        - in: query
+          name: postcode
+          description: Delete a city by its postcode.
+          required: true
+          schema:
+            type: number
+      responses:
+        '204':
+          description: NO_CONTENT
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          description: NOT_FOUND
+      security:
+        - Bearer: []
+      tags:
+      - City
+  /course:
+    get:
+      summary: 'Returns a list of courses'
+      operationId: course_list
+      parameters: 
+        - in: query
+          name: id
+          description: Search for a specific ID. 
+          schema:
+            type: number
+        - in: query
+          name: sport
+          description: Search for a specific sport. 
+          schema:
+            type: string
+        - in: query
+          name: trainer
+          description: Search for a specific trainer(via ID). 
+          schema:
+            type: number
+        - in: query
+          name: page
+          description: Number of the page. A page has 12 entries by default.
+          schema:
+            type: number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                    example: [{
+                      id: 2,
+                      sport: {
+                        id: 1,
+                        name: Badminton
+                      },
+                      trainer: {
+                        id: 1,
+                        first_name: Bennit,
+                        last_name: Vesely,
+                        birthday: 1998-06-24,
+                        street: Teststraße,
+                        house_number: 24,
+                        postcode: {
+                            postcode: 55246,
+                            city: Mainz-Kostheim
+                        },
+                        username: admin,
+                        is_staff: true,
+                        last_login: '2023-11-13T13:38:21.896257Z'
+                      },
+                      date: {
+                          id: 8,
+                          course_length: 120,
+                          days: 63,
+                          hour: 16,
+                          minute: 30
+                      },
+                      hall: Wilhelm-Richter Halle
+                    }]
+        '401':
+          $ref: '#/components/responses/401'
+      security:
+        - Bearer: []
+      tags:
+      - Course
+    post:
+      summary: 'Create a course'
+      operationId: course_create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                sport:
+                  type: string
+                trainer_id:
+                  type: number
+                date:
+                  type: object
+                  properties:
+                    course_length:
+                      type: number
+                    days:
+                      description: Binarycoded days (1:Monday 2:Thuesday 4:Wednesday 8:Thirsday 16:Friday 32:Saturday)
+                      type: number
+                    hour:
+                      type: number
+                    minute:
+                      type: number
+                hall:
+                  type: string
+            example:
+              sport: {
+                name: Schach
+              }
+              trainer_id: 1
+              date: {
+                course_length: 90,
+                days: 5,
+                hour: 16,
+                minute: 30
+              }
+              hall: Schul-Sporthalle
+      responses:
+        '201':
+          description: CREATED
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    example: {
+                      id: 22,
+                      sport: {
+                          id: 19,
+                          name: Schach
+                      },
+                      trainer: {
+                          id: 1,
+                          first_name: Bennit,
+                          last_name: Vesely,
+                          birthday: 1998-06-24,
+                          street: Teststraße,
+                          house_number: 24,
+                          postcode: {
+                              postcode: 55246,
+                              city: Mainz-Kostheim
+                          },
+                          username: admin,
+                          is_staff: true,
+                          last_login: '2023-11-13T13:38:21.896257Z'
+                      },
+                      date: {
+                          id: 9,
+                          course_length: 90,
+                          days: 5,
+                          hour: 16,
+                          minute: 30
+                      },
+                      hall: Schul-Sporthalle
+                  }
+        '401':
+          $ref: '#/components/responses/401'
+      security:
+        - Bearer: []
+      tags:
+      - Course
+    put:
+      summary: 'Update a course'
+      operationId: course_update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                id:
+                  type: number
+                sport:
+                  type: string
+                trainer_id:
+                  type: number
+                date:
+                  type: object
+                  properties:
+                    course_length:
+                      type: number
+                    days:
+                      description: Binarycoded day (1:Monday 2:Thuesday 4:Wednesday 8:Thirsday 16:Friday 32:Saturday)
+                      type: number
+                    hour:
+                      type: number
+                    minute:
+                      type: number
+                hall:
+                  type: string
+            example:
+              id: 12
+              hall: Wilhelm-Richter Halle
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    example: {
+                      id: 12,
+                      sport: {
+                          id: 11,
+                          name: Netzball
+                      },
+                      trainer: {
+                          id: 1,
+                          first_name: Bennit,
+                          last_name: Vesely,
+                          birthday: 1998-06-24,
+                          street: Teststraße,
+                          house_number: 24,
+                          postcode: {
+                              postcode: 55246,
+                              city: Mainz-Kostheim
+                          },
+                          username: admin,
+                          is_staff: true,
+                          last_login: '2023-11-13T13:38:21.896257Z'
+                      },
+                      date: {
+                          id: 3,
+                          course_length: 45,
+                          days: 32,
+                          hour: 10,
+                          minute: 0
+                      },
+                      hall: Wilhelm-Richter Halle
+                  }
+        '401':
+          $ref: '#/components/responses/401'
+      security:
+        - Bearer: []
+      tags:
+      - Course
+    delete:
+      summary: 'Delete a course'
+      operationId: course_delete
+      parameters: 
+        - in: query
+          name: id
+          description: Delete a course by its ID.
+          required: true
+          schema:
+            type: number
+      responses:
+        '204':
+          description: NO_CONTENT
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          description: NOT_FOUND
+      security:
+        - Bearer: []
+      tags:
+      - Course
+  /coursedate:
+    get:
+      summary: 'Returns a list of coursedates'
+      operationId: coursedate_list
+      parameters: 
+        - in: query
+          name: id
+          description: Search for a specific ID. 
+          schema:
+            type: number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                    example: [{
+                      id: 1,
+                      course_length: 60,
+                      days: 9,
+                      hour: 18,
+                      minute: 0
+                  },
+                  {
+                      id: 2,
+                      course_length: 90,
+                      days: 15,
+                      hour: 20,
+                      minute: 30
+                  }]
+        '401':
+          $ref: '#/components/responses/401'
+      security:
+        - Bearer: []
+      tags:
+      - Coursedate
+    post:
+      summary: 'Create a coursedate'
+      operationId: coursedate_create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                course_length:
+                  type: number
+                days:
+                  description: Binarycoded days (1:Monday 2:Thuesday 4:Wednesday 8:Thirsday 16:Friday 32:Saturday)
+                  type: number
+                hour:
+                  type: number
+                minute:
+                  type: number
+            example:
+              course_length: 90
+              days: 5
+              hour: 16
+              minute: 30
+      responses:
+        '201':
+          description: CREATED
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    example: {
+                      id: 9,
+                      course_length: 90,
+                      days: 5,
+                      hour: 16,
+                      minute: 30
+                  }
+        '401':
+          $ref: '#/components/responses/401'
+      security:
+        - Bearer: []
+      tags:
+      - Coursedate
+    put:
+      summary: 'Update a coursedate'
+      operationId: coursedate_update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                course_length:
+                  type: number
+                days:
+                  description: Binarycoded day (1:Monday 2:Thuesday 4:Wednesday 8:Thirsday 16:Friday 32:Saturday)
+                  type: number
+                hour:
+                  type: number
+                minute:
+                  type: number
+            example:
+              id: 9
+              course_length: 60
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    example: {
+                      id: 9,
+                      course_length: 60,
+                      days: 5,
+                      hour: 16,
+                      minute: 30
+                  }
+        '401':
+          $ref: '#/components/responses/401'
+      security:
+        - Bearer: []
+      tags:
+      - Coursedate
+    delete:
+      summary: 'Delete a coursedate'
+      operationId: coursedate_delete
+      parameters: 
+        - in: query
+          name: id
+          description: Delete a coursedate by its ID.
+          required: true
+          schema:
+            type: number
+      responses:
+        '204':
+          description: NO_CONTENT
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          description: NOT_FOUND
+      security:
+        - Bearer: []
+      tags:
+      - Coursedate
+  /sport:
+    get:
+      summary: 'Returns a list of sports'
+      operationId: sport_list
+      parameters: 
+        - in: query
+          name: id
+          description: Search for a specific ID. 
+          schema:
+            type: number
+        - in: query
+          name: name
+          description: Search for a specific name.
+          schema: 
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                    example: [{
+                      id: 1,
+                      name: Badminton
+                    },
+                    {
+                      id: 2,
+                      name: Tennis
+                    }]
+        '401':
+          $ref: '#/components/responses/401'
+      security:
+        - Bearer: []
+      tags:
+      - Sport
+    post:
+      summary: 'Create a sport'
+      operationId: sport_create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                  example: Schach
+      responses:
+        '201':
+          description: CREATED
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    example: {
+                      id: 19,
+                      name: Schach
+                    }
+        '401':
+          $ref: '#/components/responses/401'
+      security:
+        - Bearer: []
+      tags:
+      - Sport
+    put:
+      summary: 'Update a sport'
+      operationId: sport_update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                id:
+                  type: number
+                  example: 19
+                name:
+                  type: string
+                  example: Speed-Schach
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    example: {
+                      id: 19,
+                      name: Speed-Schach
+                    }
+        '401':
+          $ref: '#/components/responses/401'
+      security:
+        - Bearer: []
+      tags:
+      - Sport
+    delete:
+      summary: 'Delete a sport'
+      operationId: sport_delete
+      parameters: 
+        - in: query
+          name: id
+          description: Delete a sport by its ID.
+          required: true
+          schema:
+            type: number
+      responses:
+        '204':
+          description: NO_CONTENT
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          description: NOT_FOUND
+      security:
+        - Bearer: []
+      tags:
+      - Sport
+  /participant:
+    get:
+      summary: 'Returns a list of participants'
+      operationId: participant_list
+      parameters: 
+        - in: query
+          name: course
+          description: Search for a specific course ID. 
+          schema:
+            type: number
+        - in: query
+          name: member
+          description: Search for a specific member ID.
+          schema: 
+            type: number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                    example: [{
+                      id: 4,
+                      course: 2,
+                      member: {
+                          id: 1,
+                          first_name: Max,
+                          last_name: Mustermann,
+                          birthday: 1990-10-30,
+                          street: Teststraße,
+                          house_number: 12a,
+                          postcode: {
+                              postcode: 10365,
+                              city: Berlin-Lichtenberg
+                          }
+                      }
+                    }]
+        '401':
+          $ref: '#/components/responses/401'
+      security:
+        - Bearer: []
+      tags:
+      - Participant
+    post:
+      summary: 'Create a participant'
+      operationId: participant_create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                course_id:
+                  type: number
+                  example: 2
+                member_id:
+                  type: number
+                  example: 1
+      responses:
+        '201':
+          description: CREATED
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    example: {
+                      id: 5,
+                      course: 2,
+                      member: {
+                          id: 1,
+                          first_name: Max,
+                          last_name: Mustermann,
+                          birthday: 1990-10-30,
+                          street: Teststraße,
+                          house_number: 12a,
+                          postcode: {
+                              postcode: 10365,
+                              city: Berlin-Lichtenberg
+                          }
+                      }
+                  }
+        '401':
+          $ref: '#/components/responses/401'
+      security:
+        - Bearer: []
+      tags:
+      - Participant
+    delete:
+      summary: 'Delete a participant'
+      operationId: participant_delete
+      parameters: 
+        - in: query
+          name: id
+          description: Delete a participant by its ID.
+          schema:
+            type: number
+        - in: query
+          name: course_id
+          description: Delete a participant by course_id and member_id.
+          schema:
+            type: number
+        - in: query
+          name: member_id
+          description: Delete a participant by course_id and member_id.
+          schema:
+            type: number
+      responses:
+        '204':
+          description: NO_CONTENT
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          description: NOT_FOUND
+      security:
+        - Bearer: []
+      tags:
+      - Participant
+  /login:
+    post:
+      summary: 'Login for trainer'
+      operationId: login_create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                username:
+                  type: string
+                  example: admin
+                password:
+                  type: string
+                  example: examplePassword
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: exampleToken
+                  user:
+                    type: object
+                    example: {
+                      id: 1,
+                      first_name: Bennit,
+                      last_name: Vesely,
+                      birthday: 1998-06-24,
+                      street: Andere Allee,
+                      house_number: 1,
+                      postcode: {
+                          postcode: 55246,
+                          city: Mainz-Kostheim
+                      },
+                      username: admin,
+                      is_staff: true,
+                      last_login: 2023-11-15T13:26:28.912709Z
+                  }
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Wrong login credentials
+      tags:
+      - Util
+  /logout:
+    post:
+      summary: 'Logout for trainer'
+      operationId: logout_create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                token:
+                  type: string
+                  example: exampleToken
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Token deleted
+        '404':
+          description: NOT_FOUND
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Token does not exist
+      security:
+        - Bearer: []
+      tags:
+      - Util
+  /toggle-staff:
+    post:
+      summary: 'Toggle staff status of a user'
+      operationId: toggle-staff_create
+      parameters: 
+        - in: query
+          name: id
+          description: Toggle staff status of user with ID.
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    properties: 
+                      message:
+                        type: string
+                        example: Granted admin access
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        example: Removed admin access
+        '404':
+          description: NOT_FOUND
+          content:
+            application/json:
+              schema:
+               type: object
+               properties:
+                error:
+                  type: string
+                  example: User not found
+      security:
+        - Bearer: []
+      tags:
+      - Util
+  /check-auth:
+    post:
+      summary: 'Check if a token is valid'
+      operationId: check-auth_create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                token:
+                  type: string
+                  example: exampleToken
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: exampleToken
+                  user:
+                    type: object
+                    example: {
+                      id: 1,
+                      first_name: Bennit,
+                      last_name: Vesely,
+                      birthday: 1998-06-24,
+                      street: Andere Allee,
+                      house_number: 1,
+                      postcode: {
+                          postcode: 55246,
+                          city: Mainz-Kostheim
+                      },
+                      username: admin,
+                      is_staff: true,
+                      last_login: 2023-11-15T13:26:28.912709Z
+                  }
+      tags:
+      - Util

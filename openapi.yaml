@@ -1383,8 +1383,6 @@ paths:
                   error:
                     type: string
                     example: Token does not exist
-      security:
-        - Bearer: []
       tags:
       - Util
   /toggle-staff:

@@ -472,8 +472,6 @@ def check_valid_token(request):
         return Response({'error': 'Token does not exist'}, status=status.HTTP_404_NOT_FOUND)
     
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
-@authentication_classes([TokenAuthentication])
 def logout(request):
     token = request.data.get('token')
     try:

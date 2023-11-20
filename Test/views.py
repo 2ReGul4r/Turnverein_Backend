@@ -63,6 +63,7 @@ def member(request):
         street = request.query_params.get('street', None)
         house_number = request.query_params.get('house_number', None)
         postcode = request.query_params.get('postcode', None)
+        all = request.query_params.get('all', None)
         if id:
             member_list = member_list.filter(id=id)
         if name:
@@ -79,6 +80,9 @@ def member(request):
             member_list = member_list.filter(house_number=house_number)
         if postcode:
             member_list = member_list.filter(postcode_id=postcode)
+        if all:
+            serializer = MemberSerializer(member_list, many=True)
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
         paginator = PageNumberPagination()
         result_page = paginator.paginate_queryset(queryset=member_list, request=request)
         serializer = MemberSerializer(result_page, many=True)
@@ -157,6 +161,7 @@ def trainer(request):
         house_number = request.query_params.get('house_number', None)
         postcode = request.query_params.get('postcode', None)
         username = request.query_params.get('username', None)
+        all = request.query_params.get('all', None)
         if id:
             trainer_list = trainer_list.filter(id=id)
         if name:
@@ -175,6 +180,9 @@ def trainer(request):
             trainer_list = trainer_list.filter(postcode=postcode)
         if username:
             trainer_list = trainer_list.filter(username__icontains=username.lower())
+        if all:
+            serializer = TrainerSerializer(trainer_list, many=True)
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
         paginator = PageNumberPagination()
         result_page = paginator.paginate_queryset(queryset=trainer_list, request=request)
         serializer = TrainerSerializer(result_page, many=True)
@@ -305,20 +313,22 @@ def coursedate(request):
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
-@permission_classes([IsAuthenticated])
-@authentication_classes([TokenAuthentication])
 def course(request):
     if request.method == 'GET':
         course_list = Course.objects.all()
         id = request.query_params.get('id', None)
         sport = request.query_params.get('sport', None)
         trainer = request.query_params.get('trainer', None)
+        all = request.query_params.get('all', None)
         if id:
             course_list = course_list.filter(id=id)
         if sport:
             course_list = course_list.filter(sport__icontains=sport.lower())
         if trainer:
             course_list = course_list.filter(trainer_id=trainer)
+        if all:
+            serializer = CourseSerializer(course_list, many=True)
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
         paginator = PageNumberPagination()
         result_page = paginator.paginate_queryset(queryset=course_list, request=request)
         serializer = CourseSerializer(result_page, many=True)

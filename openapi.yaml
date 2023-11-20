@@ -73,6 +73,11 @@ paths:
           description: Search for a specific username. 
           schema:
             type: string
+        - in: query
+          name: all
+          description: If set, ignore the pages and get all results.
+          shema: 
+            type: boolean
       responses:
         '200':
           description: OK
@@ -317,6 +322,11 @@ paths:
           description: Search for a specific postcode. 
           schema:
             type: number
+        - in: query
+          name: all
+          description: If set, ignore the pages and get all results.
+          shema: 
+            type: boolean
       responses:
         '200':
           description: OK
@@ -653,6 +663,11 @@ paths:
           description: Number of the page. A page has 12 entries by default.
           schema:
             type: number
+        - in: query
+          name: all
+          description: If set, ignore the pages and get all results.
+          shema: 
+            type: boolean
       responses:
         '200':
           description: OK

@@ -9,17 +9,27 @@ class CitySerializer(serializers.ModelSerializer):
 class MemberSerializer(serializers.ModelSerializer):
     postcode = CitySerializer(read_only=True)
     postcode_id = serializers.IntegerField(write_only=True)
+    full_name = serializers.SerializerMethodField(read_only=True)
+    
+    def get_full_name(self, obj):
+        return f'{obj.first_name} {obj.last_name}'
+    
     class Meta:
         model = Member
-        fields = ['id', 'first_name', 'last_name', 'birthday', 'street', 'house_number', 'postcode_id', 'postcode']
+        fields = ['id', 'first_name', 'last_name', 'full_name', 'birthday', 'street', 'house_number', 'postcode_id', 'postcode']
         extra_kwargs = {'id': {'read_only': True}, 'postcode': {'read_only': True}}
         
 class TrainerSerializer(serializers.ModelSerializer):
     postcode = CitySerializer(read_only=True)
     postcode_id = serializers.IntegerField(write_only=True)
+    full_name = serializers.SerializerMethodField(read_only=True)
+    
+    def get_full_name(self, obj):
+        return f'{obj.first_name} {obj.last_name} ({obj.username})'
+    
     class Meta:
         model = Trainer
-        fields = ['id', 'first_name', 'last_name', 'birthday', 'street', 'house_number', 'postcode_id', 'postcode', 'username', 'password', 'is_staff', 'last_login']
+        fields = ['id', 'first_name', 'last_name', 'full_name', 'birthday', 'street', 'house_number', 'postcode_id', 'postcode', 'username', 'password', 'is_staff', 'last_login']
         extra_kwargs = {'password': {'write_only': True}, 'id': {'read_only': True}, 'postcode': {'read_only': True}, 'is_staff': {'read_only': True}, 'last_login': {'read_only': True}}
         
 class SportSerializer(serializers.ModelSerializer):

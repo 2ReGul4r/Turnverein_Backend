@@ -76,7 +76,7 @@ paths:
         - in: query
           name: all
           description: If set, ignore the pages and get all results.
-          shema: 
+          schema: 
             type: boolean
       responses:
         '200':
@@ -328,7 +328,7 @@ paths:
         - in: query
           name: all
           description: If set, ignore the pages and get all results.
-          shema: 
+          schema: 
             type: boolean
       responses:
         '200':
@@ -672,7 +672,7 @@ paths:
         - in: query
           name: all
           description: If set, ignore the pages and get all results.
-          shema: 
+          schema: 
             type: boolean
       responses:
         '200':
@@ -1256,6 +1256,10 @@ paths:
                 member_id:
                   type: number
                   example: 1
+                members:
+                  description: Overwrites member_id with an array
+                  type: array
+                  example: [1,2,3]
       responses:
         '201':
           description: CREATED
@@ -1362,7 +1366,7 @@ paths:
                       },
                       username: admin,
                       is_staff: true,
-                      last_login: 2023-11-15T13:26:28.912709Z
+                      last_login: '2023-11-15T13:26:28.912709Z'
                   }
         '401':
           description: Unauthorized
@@ -1494,7 +1498,7 @@ paths:
                       },
                       username: admin,
                       is_staff: true,
-                      last_login: 2023-11-15T13:26:28.912709Z
+                      last_login: '2023-11-15T13:26:28.912709Z'
                   }
       tags:
       - Util

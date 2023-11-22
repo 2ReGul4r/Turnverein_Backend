@@ -384,10 +384,19 @@ def participant(request):
         return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
     elif request.method == 'POST':
-        serializer = ParticipantSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'data': serializer.data}, status=status.HTTP_201_CREATED)
+        if request.data['members']:
+            data = [{"course_id": request.data['course_id'], "member_id": i} for i in request.data['members'] if not Participant.objects.filter(course_id=request.data['course_id'], member_id=i).first()]
+            serializer = ParticipantSerializer(data=data, many=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'data': serializer.data}, status=status.HTTP_201_CREATED)
+        else:
+            if Participant.objects.filter(course_id=request.data['course_id'], member_id=request.data['member_id']).first():
+                return Response({'message': 'This member is already part of this course.'}, status=status.HTTP_200_OK)
+            serializer = ParticipantSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'data': serializer.data}, status=status.HTTP_201_CREATED)
         
     elif request.method == 'DELETE':
         id = request.query_params.get('id', None)

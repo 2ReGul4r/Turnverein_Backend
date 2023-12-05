@@ -325,7 +325,7 @@ def course(request):
         if id:
             course_list = course_list.filter(id=id)
         if sport:
-            course_list = course_list.filter(sport__icontains=sport.lower())
+            course_list = course_list.filter(sport__name__icontains=sport.lower())
         if trainer:
             course_list = course_list.filter(trainer_id=trainer)
         if all:

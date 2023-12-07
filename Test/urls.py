@@ -65,4 +65,5 @@ urlpatterns = [
     path('api/login', views.user_login),
     path('api/check-auth', views.check_valid_token),
     path('api/logout', views.logout),
+    path('api/change-password', views.change_password),
 ]

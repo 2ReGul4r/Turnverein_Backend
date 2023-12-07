@@ -501,3 +501,21 @@ def logout(request):
     except Token.DoesNotExist:
         return Response({'error': 'Token does not exist'}, status=status.HTTP_404_NOT_FOUND)
     return Response({'message': 'Token deleted'}, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+def change_password(request):
+    if request.method == 'POST':
+        user = request.user
+        old_password = request.data.get('old_password')
+        new_password = request.data.get('new_password')
+        
+        if not user.check_password(old_password):
+            return Response({'error': 'The old password is incorrect'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user.set_password(new_password)
+        user.save()
+        return Response({'message': 'Your password has been changed'}, status=status.HTTP_200_OK)
+    
+    return Response({'error': 'Ungültige Anfrage.'}, status=status.HTTP_400_BAD_REQUEST)

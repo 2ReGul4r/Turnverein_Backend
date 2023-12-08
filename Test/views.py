@@ -424,7 +424,7 @@ def participant(request):
 @permission_classes([IsAuthenticated])
 @authentication_classes([TokenAuthentication])
 def toggle_staff_status(request):
-    id = request.query_params.get('id', None)
+    id = request.data.get('id', None)
     if not id:
         return Response(status=status.HTTP_400_BAD_REQUEST)
     try:

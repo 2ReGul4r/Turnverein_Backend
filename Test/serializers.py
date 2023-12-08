@@ -114,6 +114,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         house_number = validated_data['house_number']
         postcode_id = validated_data['postcode_id']
         password = validated_data['password']
+        is_staff = validated_data['is_staff']
 
         user = Trainer.objects.create_user(
             username=username,
@@ -124,5 +125,6 @@ class RegistrationSerializer(serializers.ModelSerializer):
             house_number=house_number,
             postcode_id=postcode_id,
             password=password,
+            is_staff=is_staff,
         )
         return user

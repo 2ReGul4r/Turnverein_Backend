@@ -1326,7 +1326,7 @@ paths:
   /login:
     post:
       summary: 'Login for trainer'
-      operationId: login_create
+      operationId: login
       requestBody:
         required: true
         content:
@@ -1383,7 +1383,7 @@ paths:
   /logout:
     post:
       summary: 'Logout for trainer'
-      operationId: logout_create
+      operationId: logout
       requestBody:
         required: true
         content:
@@ -1419,14 +1419,16 @@ paths:
   /toggle-staff:
     post:
       summary: 'Toggle staff status of a user'
-      operationId: toggle-staff_create
-      parameters: 
-        - in: query
-          name: id
-          description: Toggle staff status of user with ID.
-          required: true
-          schema:
-            type: number
+      operationId: toggle-staff
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                id:
+                  type: number
+                  example: 1
       responses:
         '200':
           description: OK
@@ -1461,7 +1463,7 @@ paths:
   /check-auth:
     post:
       summary: 'Check if a token is valid'
-      operationId: check-auth_create
+      operationId: check-auth
       requestBody:
         required: true
         content:
@@ -1500,5 +1502,56 @@ paths:
                       is_staff: true,
                       last_login: '2023-11-15T13:26:28.912709Z'
                   }
+        '404':
+          description: NOT_FOUND
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error: 
+                    type: string
+                    example: Token does not exist
+      tags:
+      - Util
+  /change-password:
+    post:
+      summary: 'Change password of a trainer'
+      operationId: change-password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                old_password:
+                  type: string
+                  example: examplePassword
+                new_password:
+                  type: string
+                  example: newPassword
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+                    example: Your password has been changed
+        '400':
+          description: BAD_REQUEST
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error: 
+                    type: string
+                    example: The old password is incorrect
+      security:
+        - Bearer: []
       tags:
       - Util

@@ -1,6 +1,6 @@
 ## Initial Project setup
 ```
-From Test_Django Folder
+From Turnverein_Backend Folder
 
 #Windows
 py -m venv venv
@@ -23,7 +23,7 @@ python3 -m pip install django djangorestframework django-cors-headers
 
 ### Start project
 ```
-From Test_Django Folder
+From Turnverein_Backend Folder
 
 #Windows
 py manage.py runserver

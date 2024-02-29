@@ -45,3 +45,9 @@ py manage.py migrate
 python3 manage.py makemigrations Test
 python3 manage.py migrate
 ````
+
+### Backend Doku
+```
+Goto https://editor.swagger.io/
+And drop the openapi.yaml in the left side.
+```

@@ -7,18 +7,14 @@ py -m venv venv
 
 cd venv/Scripts/activate.bat
 
-pip install django djangorestframework django-cors-headers
-or
-py -m pip install django djangorestframework django-cors-headers
+pip install -r requirement.txt
 
 #MacOs / Linux
 python3 -m venv venv
 
 . ./venv/bin/activate
 
-pip install django djangorestframework django-cors-headers
-or
-python3 -m pip install django djangorestframework django-cors-headers
+pip install -r requirement.txt
 ```
 
 ### Start project

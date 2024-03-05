@@ -20,9 +20,9 @@ def fakeCity():
 def fakeMember():
     cityResp = fakeCity()['data']
     print(cityResp)
-    data = json.dumps({"first_name": fake.first_name(), "last_name": fake.last_name(), "birthday": fake.date(), "street": fake.street_name(), "house_number": random.randint(1, 128), "postcode_id": cityResp["postcode"]})
-    print(data)
+    data = json.dumps({"first_name": fake.first_name(), "last_name": fake.last_name(), "birthday": fake.date(), "street": fake.street_name(), "house_number": random.randint(1, 128), "postcode": cityResp["postcode"], "city": cityResp["city"]})
     response = requests.post(f"{baseurl}member", data=data, headers=getHeader())
     return response
     
-print(fakeMember())
+#for i in range(25):
+fakeMember()

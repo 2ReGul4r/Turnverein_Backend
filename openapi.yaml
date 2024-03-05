@@ -386,14 +386,11 @@ paths:
                   type: string
                   example: 12a
                 postcode:
-                  type: object
-                  properties:
-                    postcode:
-                      type: number
-                      example: 10365
-                    city:
-                      type: string
-                      example: Berlin-Lichtenberg
+                  type: number
+                  example: 10365
+                city:
+                  type: string
+                  example: Berlin-Lichtenberg
       responses:
         '201':
           description: CREATED

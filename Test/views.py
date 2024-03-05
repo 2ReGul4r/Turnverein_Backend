@@ -91,10 +91,8 @@ def member(request):
         return Response({'data': serializer.data, 'page_count': total_pages}, status=status.HTTP_200_OK)
 
     elif request.method == 'POST':
-        cityData = request.data.get('postcode', None)
-        if cityData:
-            postcode = cityData.get('postcode', None)
-            city = cityData.get('city', None)
+        postcode = request.data.get('postcode', None)
+        city = request.data.get('city', None)
         
         try: 
             City.objects.get(postcode=postcode)
@@ -460,6 +458,9 @@ def register(request):
     trainer_data = request.data
     trainer_data['postcode_id'] = postcode
     trainer_data['is_active'] = True
+    
+    if not request.user.is_staff:
+        trainer_data["is_staff"] = False
     
     register_serializer = RegistrationSerializer(data=trainer_data)
     if register_serializer.is_valid(raise_exception=True):

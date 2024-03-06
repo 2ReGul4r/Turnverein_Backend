@@ -431,7 +431,7 @@ def toggle_staff_status(request):
         return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
     
     if not request.user.is_staff:
-        return Response({'error': 'No access'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({'error': 'No access'}, status=status.HTTP_403_FORBIDDEN)
 
     if user.is_staff:
         user.is_staff = False 

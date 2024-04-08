@@ -33,7 +33,7 @@ python3 manage.py runserver
 
 ### Make Migrations
 ```
-Migrations are needed to apply changes to there Database.
+Migrations are needed to apply changes to the Database.
 i.e. If you added a new model or edited one.
 
 #Windows
